@@ -33,6 +33,9 @@ if [ -z "${ZIPALIGN:-}" ]; then
   fi
 fi
 
+# 本地签名材料（.signing/env，不进仓库）：存在则自动加载
+if [ -f .signing/env ]; then set -a; . .signing/env; set +a; fi
+
 KEYSTORE=${KEYSTORE:-tools/debug.keystore}
 KS_PASS=${KS_PASS:-android}
 KEY_ALIAS=${KEY_ALIAS:-pushup}

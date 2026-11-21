@@ -9,7 +9,8 @@ build/
 tools/
 libs/
 
-# 签名密钥，绝对不能提交
+# 签名密钥，绝对不能提交（.signing/ 存本地正式密钥与 env）
+.signing/
 *.keystore
 *.jks
 *.p12
