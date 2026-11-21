@@ -27,7 +27,10 @@ if [ -z "${AAPT:-}" ]; then
 fi
 if [ -z "${ZIPALIGN:-}" ]; then
   ZIPALIGN=zipalign
-  if [ -x "$BT/zipalign" ] && "$BT/zipalign" 2>&1 | grep -q "Zip alignment"; then ZIPALIGN="$BT/zipalign"; fi
+  # zipalign 无参运行会打印用法并返回非 0，配合 set -o pipefail 必须 || true 兜住
+  if [ -x "$BT/zipalign" ] && { "$BT/zipalign" 2>&1 || true; } | grep -q "Zip alignment"; then
+    ZIPALIGN="$BT/zipalign"
+  fi
 fi
 
 KEYSTORE=${KEYSTORE:-tools/debug.keystore}
