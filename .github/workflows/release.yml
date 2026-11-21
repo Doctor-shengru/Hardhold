@@ -35,10 +35,14 @@ jobs:
           if ! echo "$VERSION" | grep -qE '^[0-9]+(\.[0-9]+)*$'; then
             echo "无法从 '$REF' 解析版本号（期望 v1.2 这种格式）"; exit 1
           fi
-          # versionCode 用递增的构建号，避免 1.10 与 1.1 冲突
+          # versionCode 由版本号推导：major*10000 + minor*100 + patch
+          # 保证 v1.2 → 10200、v1.3 → 10300，始终大于本地构建，可覆盖升级
+          IFS='.' read -r MAJOR MINOR PATCH <<< "$VERSION"
+          MAJOR=${MAJOR:-0}; MINOR=${MINOR:-0}; PATCH=${PATCH:-0}
+          CODE=$((MAJOR * 10000 + MINOR * 100 + PATCH))
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
-          echo "code=${{ github.run_number }}" >> "$GITHUB_OUTPUT"
-          echo "版本：$VERSION（versionCode ${{ github.run_number }}）"
+          echo "code=$CODE" >> "$GITHUB_OUTPUT"
+          echo "版本：$VERSION（versionCode $CODE）"
 
       - name: 准备构建工具
         run: |
