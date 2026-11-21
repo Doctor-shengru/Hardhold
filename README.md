@@ -64,6 +64,49 @@ javac -encoding UTF-8 -d build/test \
 java -cp build/test PushupCounterTest
 ```
 
+## 自动发版（GitHub Actions）
+
+推一个 tag 就会自动编译、签名并创建 GitHub Release：
+
+```bash
+git tag v1.3
+git push origin v1.3
+```
+
+工作流在 `.github/workflows/release.yml`，用 runners 预装的 build-tools 34 + platform 34，
+不额外下载 SDK；也可以在 Actions 页手动触发（填了 tag 才建 Release，否则只产出 artifact）。
+versionCode 取自 `github.run_number`，versionName 取自 tag。
+
+### 签名密钥（可选但建议）
+
+在 Settings → Secrets and variables → Actions 里加：
+
+| Secret | 内容 |
+|---|---|
+| `KEYSTORE_BASE64` | `base64 -w0 release.keystore` 的输出 |
+| `KEYSTORE_PASSWORD` | keystore 密码 |
+| `KEY_ALIAS` | 密钥别名 |
+| `KEY_PASSWORD` | key 密码（可与 KEYSTORE_PASSWORD 相同） |
+
+### 生成正式密钥（只在本地做一次，密钥本身不要提交）
+
+```bash
+keytool -genkeypair -keystore release.keystore -alias hardhold \
+  -keyalg RSA -keysize 2048 -validity 10000 \
+  -dname "CN=Hardhold" -storepass '你的密码' -keypass '你的密码'
+base64 -w0 release.keystore      # 复制输出填进 KEYSTORE_BASE64
+```
+
+本地构建也用同一把密钥：
+
+```bash
+KEYSTORE=release.keystore KS_PASS='你的密码' KEY_ALIAS=hardhold \
+  KEY_PASS='你的密码' ./build.sh
+```
+
+不配置密钥也能跑，工作流会用临时密钥并在 Release 说明里标注「临时签名」——
+能装，但每次发版签名都不同，装过旧版的手机会冲突，需要卸载重装。
+
 ## 目录结构
 
 ```
@@ -84,6 +127,7 @@ apk/
 ├── setup.sh                                  # 下载工具链与依赖
 ├── fetch-deps.py                             # 从 Maven 拉 MediaPipe 依赖
 ├── package.py                                # 把 dex/so 塞进 APK
+├── .github/workflows/release.yml             # 打 tag 自动构建并发 Release
 ├── LICENSE                                   # Apache-2.0
 └── NOTICE                                    # 第三方组件署名
 ```
