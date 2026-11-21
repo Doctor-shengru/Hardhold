@@ -1,20 +1,22 @@
-# 俯卧撑计数 · Pushup Counter
+# 硬撑 · Hardhold
 
 用前置摄像头实时数俯卧撑的 Android App。姿态识别用 MediaPipe Pose Landmarker（lite，5.5 MB），
 **完全在手机上推理，不联网、不上传画面**。
 
+> 名字的由来：既是俯卧撑，也是撑住的那口气。
+
 - 包名：`com.pushup.counter`
-- 版本：1.1（versionCode 2）
-- 安装包：`pushup-counter.apk`（约 16 MB，见 [Releases](../../releases)）
+- 版本：1.2（versionCode 3）
+- 安装包：`hardhold.apk`（约 16 MB，见 [Releases](../../releases)）
 - 最低系统：Android 7.0（API 24），目标 API 34
 - 架构：arm64-v8a、armeabi-v7a
 - 技术栈：Camera2 + MediaPipe Tasks Vision + 纯 Java 计数状态机（无 AndroidX、无 Gradle）
 
 ## 安装
 
-1. 下载 `pushup-counter.apk` 保存到手机。
+1. 下载 `hardhold.apk` 保存到手机。
 2. 点开安装，若提示"未知来源应用"，允许当前文件管理器安装。
-3. 打开「俯卧撑计数」，同意摄像头权限。
+3. 打开「硬撑」，同意摄像头权限。
 
 > 换版本重装若报"签名冲突"，先卸载旧版。APK 使用本地自签证书，不是应用商店版本。
 
@@ -44,7 +46,7 @@
 
 ```bash
 ./setup.sh     # 下载 build-tools 34、platform 34、MediaPipe 依赖、姿态模型（约 500MB）
-./build.sh     # 产物：pushup-counter.apk
+./build.sh     # 产物：hardhold.apk
 ```
 
 `setup.sh` 默认用腾讯云镜像，海外可指定 `MIRROR=` 换源。完整构建约 1 分钟。

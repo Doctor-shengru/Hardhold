@@ -51,8 +51,8 @@ fi
 java -jar "$BT/lib/apksigner.jar" sign \
   --ks tools/debug.keystore --ks-pass pass:android --key-pass pass:android \
   --min-sdk-version 24 --v1-signing-enabled true --v2-signing-enabled true \
-  --out pushup-counter.apk "$OUT/aligned.apk"
+  --out hardhold.apk "$OUT/aligned.apk"
 
 echo "--- verify ---"
-java -jar "$BT/lib/apksigner.jar" verify --print-certs pushup-counter.apk | head -4
-ls -lh pushup-counter.apk
+java -jar "$BT/lib/apksigner.jar" verify --print-certs hardhold.apk | head -4
+ls -lh hardhold.apk
