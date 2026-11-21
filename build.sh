@@ -64,6 +64,11 @@ java -cp "$BT/lib/d8.jar" com.android.tools.r8.D8 \
   --release --min-api 24 "${LIB_ARGS[@]}" \
   --output build/dex $(find build/classes -name '*.class') $PROJ_JARS > build/d8.log 2>&1 || { tail -20 build/d8.log; exit 1; }
 ls -lh build/dex/classes.dex
+DEX_SIZE=$(stat -c%s build/dex/classes.dex)
+if [ "$DEX_SIZE" -lt 1048576 ]; then
+  echo "错误：classes.dex 只有 $DEX_SIZE 字节，依赖 jar 可能没作为程序输入传进 d8" >&2
+  exit 1
+fi
 
 echo "[4/6] 打包 dex + native libs"
 python3 package.py "$OUT/base.apk" "$OUT/unaligned.apk" \
