@@ -15,6 +15,9 @@ ANDROID_JAR=${ANDROID_JAR:-tools/android-34/android.jar}
 APP=app/src/main
 OUT=build/out
 JARS_LIST=$(ls libs/*.jar libs/x/jars/*.jar)
+# auto-value 只在编译期当注解处理器，不进 dex；其余 jar 需要作为程序输入打进 dex
+PROJ_JARS=$(echo "$JARS_LIST" | grep -v auto-value || true)
+LIB_JARS=$(echo "$JARS_LIST" | grep auto-value || true)
 CP="$ANDROID_JAR:$(echo "$JARS_LIST" | tr '\n' ':')"
 
 # build-tools 里的二进制在 x86 主机上可直接跑；在 arm64 上跑不了就退回系统自带的
@@ -56,10 +59,10 @@ echo "[2/6] aapt package ($AAPT)"
 
 echo "[3/6] d8 (dex)"
 LIB_ARGS=("--lib" "$ANDROID_JAR")
-for j in $JARS_LIST; do LIB_ARGS+=("--lib" "$j"); done
+for j in $LIB_JARS; do LIB_ARGS+=("--lib" "$j"); done
 java -cp "$BT/lib/d8.jar" com.android.tools.r8.D8 \
   --release --min-api 24 "${LIB_ARGS[@]}" \
-  --output build/dex $(find build/classes -name '*.class') > build/d8.log 2>&1 || { tail -20 build/d8.log; exit 1; }
+  --output build/dex $(find build/classes -name '*.class') $PROJ_JARS > build/d8.log 2>&1 || { tail -20 build/d8.log; exit 1; }
 ls -lh build/dex/classes.dex
 
 echo "[4/6] 打包 dex + native libs"
