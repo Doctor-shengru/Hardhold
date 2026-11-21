@@ -33,7 +33,7 @@ def build(gap, hand, m=1.0):
     m=Image.fromarray(np.maximum(np.array(L),np.array(L.transpose(Image.FLIP_LEFT_RIGHT))).astype(np.uint8))
     return m
 def hfield(mask):
-    a=np.array(mask.filter(ImageFilter.GaussianBlur(S*0.024))).astype(np.float32)/255.0
+    a=np.array(mask.filter(ImageFilter.GaussianBlur(S*0.016))).astype(np.float32)/255.0
     a=a/max(a.max(),1e-6)
     return np.clip(a,0,1)**0.55
 def render(name, gap, hand, m=1.0):
@@ -79,7 +79,7 @@ canvas.paste(arm_small, ((2048-arm_size)//2, int(2048*0.09)))
 
 mask=(sq_mask(2048,n=4.2)*255).astype(np.uint8)
 out=Image.new('RGBA',(2048,2048),(0,0,0,0)); out.paste(canvas,(0,0),Image.fromarray(mask))
-big=out.resize((512,512),Image.LANCZOS); big.save('/root/workspace/apk/logo/icon_notext.png')
-out.resize((96,96),Image.LANCZOS).save('/root/workspace/apk/logo/icon_notext_96.png')
+big=out.resize((512,512),Image.LANCZOS); big.save('/root/workspace/apk/logo/icon_v20.png')
+out.resize((96,96),Image.LANCZOS).save('/root/workspace/apk/logo/icon_v20_96.png')
 print('ok')
 print('ok')
