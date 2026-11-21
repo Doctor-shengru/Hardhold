@@ -6,7 +6,7 @@
 > 名字的由来：既是俯卧撑，也是撑住的那口气。
 
 - 包名：`com.pushup.counter`
-- 版本：1.3（versionCode 4）
+- 版本：1.3.1（versionCode 10301）
 - 安装包：`hardhold.apk`（约 16 MB，见 [Releases](../../releases)）
 - 最低系统：Android 7.0（API 24），目标 API 34
 - 架构：arm64-v8a、armeabi-v7a

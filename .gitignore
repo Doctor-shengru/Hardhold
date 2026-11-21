@@ -24,3 +24,7 @@ Thumbs.db
 
 # apksigner 生成的签名辅助文件
 *.idsig
+
+# 图标生成中间产物
+logo/*.png
+!logo/icon.png
