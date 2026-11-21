@@ -1,0 +1,25 @@
+# 构建产物
+build/
+*.apk
+*.aab
+*.dex
+*.class
+
+# 本地工具链与第三方依赖：体积大（约 500MB），用 ./setup.sh 重新获取
+tools/
+libs/
+
+# 签名密钥，绝对不能提交
+*.keystore
+*.jks
+*.p12
+
+# 编辑器 / 系统
+.idea/
+.vscode/
+*.iml
+.DS_Store
+Thumbs.db
+
+# apksigner 生成的签名辅助文件
+*.idsig
