@@ -54,6 +54,7 @@ public final class MainActivity extends Activity {
     private TextView hint;
     private Button resetButton;
     private Button tuneButton;
+    private Button switchButton;
     private TunePanel tunePanel;
 
     private static final String PREFS = "pushup_tune";
@@ -71,6 +72,8 @@ public final class MainActivity extends Activity {
     private HandlerThread camThread;
     private Handler camHandler;
     private int rotationDegrees = 270;
+    /** true = 前置（默认，镜像显示）；false = 后置 */
+    private boolean useFrontCamera = true;
 
     private PoseLandmarker landmarker;
     private volatile long detectStartedAt;
@@ -112,6 +115,14 @@ public final class MainActivity extends Activity {
 
         LinearLayout.LayoutParams bnp = new LinearLayout.LayoutParams(dp(72), dp(40));
         bnp.setMargins(dp(4), 0, dp(4), 0);
+
+        switchButton = new Button(this);
+        switchButton.setText("切换");
+        switchButton.setAlpha(0.82f);
+        buttons.addView(switchButton, bnp);
+        switchButton.setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View v) { switchCamera(); }
+        });
 
         tuneButton = new Button(this);
         tuneButton.setText("微调");
@@ -227,9 +238,14 @@ public final class MainActivity extends Activity {
         if (checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) return;
         try {
             cameraManager = (CameraManager) getSystemService(CAMERA_SERVICE);
-            String id = pickFrontCamera();
+            String id = pickCamera(useFrontCamera);
             if (id == null) {
-                showHint("没有找到前置摄像头");
+                // 请求的朝向不存在时退回另一个
+                useFrontCamera = !useFrontCamera;
+                id = pickCamera(useFrontCamera);
+            }
+            if (id == null) {
+                showHint("没有找到可用的摄像头");
                 return;
             }
             CameraCharacteristics ch = cameraManager.getCameraCharacteristics(id);
@@ -256,13 +272,31 @@ public final class MainActivity extends Activity {
         }
     }
 
-    private String pickFrontCamera() throws CameraAccessException {
+    private String pickCamera(boolean front) throws CameraAccessException {
+        int want = front ? CameraCharacteristics.LENS_FACING_FRONT
+                : CameraCharacteristics.LENS_FACING_BACK;
         for (String id : cameraManager.getCameraIdList()) {
             CameraCharacteristics ch = cameraManager.getCameraCharacteristics(id);
             Integer facing = ch.get(CameraCharacteristics.LENS_FACING);
-            if (facing != null && facing == CameraCharacteristics.LENS_FACING_FRONT) return id;
+            if (facing != null && facing == want) return id;
         }
         return null;
+    }
+
+    /** 切换前后摄像头：关掉当前设备，稍等再开另一个 */
+    private void switchCamera() {
+        if (cameraDevice == null && session == null) return; // 摄像头没开，忽略
+        useFrontCamera = !useFrontCamera;
+        closeCamera();
+        preview.setPose(null, false);
+        ui.postDelayed(new Runnable() {
+            @Override public void run() {
+                openCamera();
+                Toast.makeText(MainActivity.this,
+                        useFrontCamera ? "已切换到前置摄像头" : "已切换到后置摄像头",
+                        Toast.LENGTH_SHORT).show();
+            }
+        }, 350);
     }
 
     private final CameraDevice.StateCallback deviceCallback = new CameraDevice.StateCallback() {
@@ -317,7 +351,7 @@ public final class MainActivity extends Activity {
         if (image == null) return;
         Bitmap bmp;
         try {
-            bmp = YuvConverter.toUprightBitmap(image, rotationDegrees, true);
+            bmp = YuvConverter.toUprightBitmap(image, rotationDegrees, useFrontCamera);
         } catch (Throwable t) {
             Log.e(TAG, "yuv convert", t);
             image.close();
