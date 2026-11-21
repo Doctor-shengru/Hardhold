@@ -76,18 +76,10 @@ canvas = Image.new('RGB',(2048,2048), tuple(BG.astype(int)))
 arm_size = int(2048*0.84)
 arm_small = base.resize((arm_size,arm_size), Image.LANCZOS)
 canvas.paste(arm_small, ((2048-arm_size)//2, int(2048*0.09)))
-d = ImageDraw.Draw(canvas)
-font = ImageFont.truetype('/usr/share/fonts/opentype/inter/Inter-ExtraBold.otf', 235)
-text='SUM'; track=26
-widths=[font.getlength(c) for c in text]
-total=sum(widths)+track*(len(text)-1)
-x=(2048-total)/2; y=int(2048*0.615)
-for c,w in zip(text,widths):
-    d.text((x,y), c, font=font, fill=(244,246,249))
-    x+=w+track
+
 mask=(sq_mask(2048,n=4.2)*255).astype(np.uint8)
 out=Image.new('RGBA',(2048,2048),(0,0,0,0)); out.paste(canvas,(0,0),Image.fromarray(mask))
-big=out.resize((512,512),Image.LANCZOS); big.save('/root/workspace/apk/logo/icon_v17.png')
-out.resize((96,96),Image.LANCZOS).save('/root/workspace/apk/logo/icon_v17_96.png')
+big=out.resize((512,512),Image.LANCZOS); big.save('/root/workspace/apk/logo/icon_notext.png')
+out.resize((96,96),Image.LANCZOS).save('/root/workspace/apk/logo/icon_notext_96.png')
 print('ok')
 print('ok')
