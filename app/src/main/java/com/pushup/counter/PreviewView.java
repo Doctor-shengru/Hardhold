@@ -20,6 +20,12 @@ public final class PreviewView extends View {
     private float angle = Float.NaN;
     private float fps;
     private boolean poseValid;
+    private int topInset = 0;
+
+    public void setTopInset(int px) {
+        this.topInset = px;
+        invalidate();
+    }
 
     private final Paint bitmapPaint = new Paint(Paint.FILTER_BITMAP_FLAG);
     private final Paint bonePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -127,8 +133,8 @@ public final class PreviewView extends View {
         String countText = String.valueOf(count);
         float tw = textPaint.measureText(countText);
         float padH = dp(30), padV = dp(16);
-        pill.set(vw / 2f - tw / 2f - padH, dp(16),
-                vw / 2f + tw / 2f + padH, dp(16) + sp(84) + padV * 2);
+        pill.set(vw / 2f - tw / 2f - padH, topInset + dp(12),
+                vw / 2f + tw / 2f + padH, topInset + dp(12) + sp(84) + padV * 2);
         GlassDrawable.paintGlass(canvas, pill, dp(26),
                 getResources().getDisplayMetrics().density, glassPaint);
         canvas.drawText(countText, vw / 2f, pill.bottom - padV * 1.35f, textPaint);

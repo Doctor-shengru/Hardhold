@@ -47,13 +47,13 @@ public final class GlassDrawable extends Drawable {
         rect.set(b);
 
         // 底：深色半透明，透出后面的相机画面
-        fill.setColor(0xC8121519);
+        fill.setColor(0x6610141A);
         canvas.drawRoundRect(rect, r, r, fill);
 
         // 顶部柔光（模拟玻璃受光）
         if (!shaderBuilt || lastHeight != b.height()) {
             highlight.setShader(new LinearGradient(
-                    0, b.top, 0, b.top + b.height() * 0.55f,
+                    0, b.top, 0, b.top + b.height() * 0.42f,
                     0x1FFFFFFF, 0x00FFFFFF, Shader.TileMode.CLAMP));
             shaderBuilt = true;
             lastHeight = b.height();
@@ -63,7 +63,7 @@ public final class GlassDrawable extends Drawable {
         // 1px 受光边
         border.setStyle(Paint.Style.STROKE);
         border.setStrokeWidth(Math.max(1f, density));
-        border.setColor(0x3DFFFFFF);
+        border.setColor(0x33FFFFFF);
         canvas.drawRoundRect(rect, r, r, border);
         border.setStyle(Paint.Style.FILL);
     }
@@ -82,7 +82,7 @@ public final class GlassDrawable extends Drawable {
     /** 供在自绘 View 里复用同一套玻璃外观 */
     public static void paintGlass(Canvas canvas, RectF r, float corner, float density, Paint work) {
         work.setStyle(Paint.Style.FILL);
-        work.setColor(0xC8121519);
+        work.setColor(0x6610141A);
         canvas.drawRoundRect(r, corner, corner, work);
 
         work.setShader(new LinearGradient(0, r.top, 0, r.top + r.height() * 0.55f,
@@ -92,7 +92,7 @@ public final class GlassDrawable extends Drawable {
 
         work.setStyle(Paint.Style.STROKE);
         work.setStrokeWidth(Math.max(1f, density));
-        work.setColor(0x3DFFFFFF);
+        work.setColor(0x33FFFFFF);
         canvas.drawRoundRect(r, corner, corner, work);
         work.setStyle(Paint.Style.FILL);
     }

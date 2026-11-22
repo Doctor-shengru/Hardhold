@@ -86,6 +86,8 @@ public final class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        getWindow().setStatusBarColor(android.graphics.Color.TRANSPARENT);
+        getWindow().setNavigationBarColor(android.graphics.Color.TRANSPARENT);
         buildUi();
         loadTunedAngles();
         initLandmarker();
@@ -191,6 +193,20 @@ public final class MainActivity extends Activity {
         root.addView(hint, hp);
 
         setContentView(root);
+        root.post(new Runnable() {
+            @Override public void run() {
+                int top = 0;
+                if (android.os.Build.VERSION.SDK_INT >= 23) {
+                    android.view.WindowInsets wi = root.getRootWindowInsets();
+                    if (wi != null) top = wi.getSystemWindowInsetTop();
+                }
+                if (top <= 0) {
+                    int id = getResources().getIdentifier("status_bar_height", "dimen", "android");
+                    if (id > 0) top = getResources().getDimensionPixelSize(id);
+                }
+                preview.setTopInset(top + dp(8));
+            }
+        });
 
         getWindow().getDecorView().setSystemUiVisibility(
                 View.SYSTEM_UI_FLAG_LAYOUT_STABLE
