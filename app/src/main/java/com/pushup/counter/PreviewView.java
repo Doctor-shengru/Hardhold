@@ -39,11 +39,14 @@ public final class PreviewView extends View {
         canvas.clipPath(glassPath);
         if (frame != null && !frame.isRecycled()) {
             if (smallSource != frame) {
-                int w = Math.max(1, frame.getWidth() / 14);
-                int h = Math.max(1, frame.getHeight() / 14);
-                Bitmap bmp = Bitmap.createScaledBitmap(frame, w, h, true);
+                // 先降到 1/8，再做三重箱式模糊：既平滑又不糊成一团
+                int w = Math.max(1, frame.getWidth() / 8);
+                int h = Math.max(1, frame.getHeight() / 8);
+                Bitmap scaled = Bitmap.createScaledBitmap(frame, w, h, true);
+                Bitmap blurred = BlurUtil.blur(scaled, Math.max(2, w / 12));
+                if (scaled != blurred && !scaled.isRecycled()) scaled.recycle();
                 if (smallFrame != null && !smallFrame.isRecycled()) smallFrame.recycle();
-                smallFrame = bmp;
+                smallFrame = blurred;
                 smallSource = frame;
             }
             if (smallFrame != null) canvas.drawBitmap(smallFrame, null, dest, blurPaint);
