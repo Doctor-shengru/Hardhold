@@ -118,7 +118,10 @@ public final class MainActivity extends Activity {
 
         switchButton = new Button(this);
         switchButton.setText("切换");
-        switchButton.setAlpha(0.82f);
+        switchButton.setAllCaps(false);
+        switchButton.setTextColor(0xFFFFFFFF);
+        switchButton.setTextSize(14);
+        switchButton.setBackground(new GlassDrawable(getResources().getDisplayMetrics().density, 20f));
         buttons.addView(switchButton, bnp);
         switchButton.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View v) { switchCamera(); }
@@ -126,7 +129,10 @@ public final class MainActivity extends Activity {
 
         tuneButton = new Button(this);
         tuneButton.setText("微调");
-        tuneButton.setAlpha(0.82f);
+        tuneButton.setAllCaps(false);
+        tuneButton.setTextColor(0xFFFFFFFF);
+        tuneButton.setTextSize(14);
+        tuneButton.setBackground(new GlassDrawable(getResources().getDisplayMetrics().density, 20f));
         buttons.addView(tuneButton, bnp);
         tuneButton.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View v) {
@@ -138,7 +144,10 @@ public final class MainActivity extends Activity {
 
         resetButton = new Button(this);
         resetButton.setText("重置");
-        resetButton.setAlpha(0.82f);
+        resetButton.setAllCaps(false);
+        resetButton.setTextColor(0xFFFFFFFF);
+        resetButton.setTextSize(14);
+        resetButton.setBackground(new GlassDrawable(getResources().getDisplayMetrics().density, 20f));
         buttons.addView(resetButton, bnp);
         resetButton.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View v) {

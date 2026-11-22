@@ -2,7 +2,6 @@ package com.pushup.counter;
 
 import android.content.Context;
 import android.graphics.Color;
-import android.graphics.drawable.GradientDrawable;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
@@ -42,11 +41,7 @@ public final class TunePanel extends LinearLayout {
         setOrientation(VERTICAL);
         setPadding(dp(16), dp(12), dp(16), dp(10));
 
-        GradientDrawable bg = new GradientDrawable();
-        bg.setColor(0xF0161D26);
-        bg.setCornerRadius(dp(14));
-        bg.setStroke(dp(1), 0x66FFFFFF);
-        setBackground(bg);
+        setBackground(new GlassDrawable(getResources().getDisplayMetrics().density, 16f));
         setElevation(dp(8));
 
         TextView title = new TextView(ctx);

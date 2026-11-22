@@ -27,6 +27,8 @@ public final class PreviewView extends View {
     private final Paint textPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint subPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final RectF dest = new RectF();
+    private final RectF pill = new RectF();
+    private final Paint glassPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
 
     /** 骨架连线：肩肘腕、肩髋、髋膝踝 */
     private static final int[][] BONES = {
@@ -122,7 +124,14 @@ public final class PreviewView extends View {
 
     private void drawHud(Canvas canvas, float vw, float vh) {
         textPaint.setTextSize(sp(84));
-        canvas.drawText(String.valueOf(count), vw / 2f, dp(96), textPaint);
+        String countText = String.valueOf(count);
+        float tw = textPaint.measureText(countText);
+        float padH = dp(30), padV = dp(16);
+        pill.set(vw / 2f - tw / 2f - padH, dp(16),
+                vw / 2f + tw / 2f + padH, dp(16) + sp(84) + padV * 2);
+        GlassDrawable.paintGlass(canvas, pill, dp(26),
+                getResources().getDisplayMetrics().density, glassPaint);
+        canvas.drawText(countText, vw / 2f, pill.bottom - padV * 1.35f, textPaint);
 
         textPaint.setTextSize(sp(17));
         String label;
@@ -132,7 +141,7 @@ public final class PreviewView extends View {
             case MIDDLE: label = "动作中"; break;
             default: label = "未检测到人"; break;
         }
-        canvas.drawText(label, vw / 2f, dp(124), textPaint);
+        canvas.drawText(label, vw / 2f, pill.bottom + sp(22), textPaint);
 
         subPaint.setTextSize(sp(13));
         String detail = "肘角 " + (Float.isNaN(angle) ? "--" : String.valueOf(Math.round(angle))) + "°"
