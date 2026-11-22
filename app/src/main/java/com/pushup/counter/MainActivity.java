@@ -355,6 +355,27 @@ public final class MainActivity extends Activity {
         }
     }
 
+    /** 按当前视图比例中心裁剪，让画面满屏，同时保证「看到的」就是「模型分析的」 */
+    private Bitmap cropToViewAspect(Bitmap src) {
+        int vw = preview.getWidth();
+        int vh = preview.getHeight();
+        if (vw <= 0 || vh <= 0) return src;
+        float viewAspect = (float) vw / vh;
+        float imgAspect = (float) src.getWidth() / src.getHeight();
+        int w = src.getWidth(), h = src.getHeight();
+        int cw = w, ch = h;
+        if (imgAspect > viewAspect) {
+            cw = Math.round(h * viewAspect);       // 太宽，裁两边
+        } else if (imgAspect < viewAspect) {
+            ch = Math.round(w / viewAspect);       // 太高，裁上下
+        }
+        if (cw == w && ch == h) return src;
+        int x = (w - cw) / 2, y = (h - ch) / 2;
+        Bitmap cropped = Bitmap.createBitmap(src, x, y, Math.max(1, cw), Math.max(1, ch));
+        if (cropped != src) src.recycle();
+        return cropped;
+    }
+
     private void handleImage() {
         Image image = imageReader.acquireLatestImage();
         if (image == null) return;
@@ -367,8 +388,7 @@ public final class MainActivity extends Activity {
             return;
         }
         image.close();
-
-        final Bitmap frame = bmp;
+        final Bitmap frame = cropToViewAspect(bmp);
         ui.post(new Runnable() {
             @Override public void run() {
                 preview.setFrame(frame);
