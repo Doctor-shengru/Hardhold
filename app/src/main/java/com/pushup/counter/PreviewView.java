@@ -5,6 +5,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
+import android.graphics.Path;
 import android.graphics.RectF;
 import android.graphics.Typeface;
 import android.media.Image;
@@ -22,6 +23,42 @@ public final class PreviewView extends View {
     private boolean poseValid;
     private int topInset = 0;
 
+    /** 需要玻璃底的控件矩形（与 PreviewView 同一坐标系） */
+    public void setGlassRects(java.util.List<RectF> rects) {
+        glassRects.clear();
+        glassRects.addAll(rects);
+        invalidate();
+    }
+
+    /** 用降采样的相机帧做真·背景模糊，裁剪到圆角矩形内 */
+    private void drawGlass(Canvas canvas, RectF r, float radius) {
+        if (r.width() <= 0 || r.height() <= 0) return;
+        glassPath.reset();
+        glassPath.addRoundRect(r, radius, radius, Path.Direction.CW);
+        canvas.save();
+        canvas.clipPath(glassPath);
+        if (frame != null && !frame.isRecycled()) {
+            if (smallSource != frame) {
+                int w = Math.max(1, frame.getWidth() / 14);
+                int h = Math.max(1, frame.getHeight() / 14);
+                Bitmap bmp = Bitmap.createScaledBitmap(frame, w, h, true);
+                if (smallFrame != null && !smallFrame.isRecycled()) smallFrame.recycle();
+                smallFrame = bmp;
+                smallSource = frame;
+            }
+            if (smallFrame != null) canvas.drawBitmap(smallFrame, null, dest, blurPaint);
+        }
+        tintPaint.setStyle(Paint.Style.FILL);
+        tintPaint.setColor(0x55101218);
+        canvas.drawRoundRect(r, radius, radius, tintPaint);
+        canvas.restore();
+
+        borderPaint.setStyle(Paint.Style.STROKE);
+        borderPaint.setStrokeWidth(Math.max(1f, dp(0.8f)));
+        borderPaint.setColor(0x38FFFFFF);
+        canvas.drawRoundRect(r, radius, radius, borderPaint);
+    }
+
     public void setTopInset(int px) {
         this.topInset = px;
         invalidate();
@@ -34,6 +71,13 @@ public final class PreviewView extends View {
     private final Paint subPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final RectF dest = new RectF();
     private final RectF pill = new RectF();
+    private final java.util.List<RectF> glassRects = new java.util.ArrayList<>();
+    private final Paint tintPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private final Paint borderPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private final Paint blurPaint = new Paint(Paint.FILTER_BITMAP_FLAG);
+    private final Path glassPath = new Path();
+    private Bitmap smallFrame;
+    private Bitmap smallSource;
     private final Paint glassPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
 
     /** 骨架连线：肩肘腕、肩髋、髋膝踝 */
@@ -100,6 +144,9 @@ public final class PreviewView extends View {
             float dw = frame.getWidth() * scale, dh = frame.getHeight() * scale;
             dest.set((vw - dw) / 2f, (vh - dh) / 2f, (vw + dw) / 2f, (vh + dh) / 2f);
             canvas.drawBitmap(frame, null, dest, bitmapPaint);
+            for (RectF gr : glassRects) {
+                drawGlass(canvas, gr, dp(18));
+            }
             drawSkeleton(canvas);
         } else {
             dest.set(0, 0, vw, vh);
@@ -135,8 +182,7 @@ public final class PreviewView extends View {
         float padH = dp(30), padV = dp(16);
         pill.set(vw / 2f - tw / 2f - padH, topInset + dp(12),
                 vw / 2f + tw / 2f + padH, topInset + dp(12) + sp(84) + padV * 2);
-        GlassDrawable.paintGlass(canvas, pill, dp(26),
-                getResources().getDisplayMetrics().density, glassPaint);
+        drawGlass(canvas, pill, dp(26));
         canvas.drawText(countText, vw / 2f, pill.bottom - padV * 1.35f, textPaint);
 
         textPaint.setTextSize(sp(17));

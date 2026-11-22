@@ -41,7 +41,7 @@ public final class TunePanel extends LinearLayout {
         setOrientation(VERTICAL);
         setPadding(dp(16), dp(12), dp(16), dp(10));
 
-        setBackground(new GlassDrawable(getResources().getDisplayMetrics().density, 16f));
+        setBackground(null);
         setElevation(dp(8));
 
         TextView title = new TextView(ctx);

@@ -123,7 +123,7 @@ public final class MainActivity extends Activity {
         switchButton.setAllCaps(false);
         switchButton.setTextColor(0xFFFFFFFF);
         switchButton.setTextSize(14);
-        switchButton.setBackground(new GlassDrawable(getResources().getDisplayMetrics().density, 20f));
+        switchButton.setBackground(null);
         buttons.addView(switchButton, bnp);
         switchButton.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View v) { switchCamera(); }
@@ -134,13 +134,16 @@ public final class MainActivity extends Activity {
         tuneButton.setAllCaps(false);
         tuneButton.setTextColor(0xFFFFFFFF);
         tuneButton.setTextSize(14);
-        tuneButton.setBackground(new GlassDrawable(getResources().getDisplayMetrics().density, 20f));
+        tuneButton.setBackground(null);
         buttons.addView(tuneButton, bnp);
         tuneButton.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View v) {
                 tunePanel.setValues(counter.upAngle(), counter.downAngle());
                 tunePanel.setLiveAngle(counter.angle());
                 tunePanel.setVisibility(View.VISIBLE);
+                tunePanel.post(new Runnable() {
+                    @Override public void run() { updateGlassRects(); }
+                });
             }
         });
 
@@ -149,7 +152,7 @@ public final class MainActivity extends Activity {
         resetButton.setAllCaps(false);
         resetButton.setTextColor(0xFFFFFFFF);
         resetButton.setTextSize(14);
-        resetButton.setBackground(new GlassDrawable(getResources().getDisplayMetrics().density, 20f));
+        resetButton.setBackground(null);
         buttons.addView(resetButton, bnp);
         resetButton.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View v) {
@@ -178,6 +181,9 @@ public final class MainActivity extends Activity {
             }
             @Override public void onClose() {
                 tunePanel.setVisibility(View.GONE);
+                tunePanel.post(new Runnable() {
+                    @Override public void run() { updateGlassRects(); }
+                });
             }
         });
 
@@ -205,13 +211,15 @@ public final class MainActivity extends Activity {
                     if (id > 0) top = getResources().getDimensionPixelSize(id);
                 }
                 preview.setTopInset(top + dp(8));
+                updateGlassRects();
             }
         });
 
+        getWindow().addFlags(android.view.WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+        getWindow().setStatusBarColor(android.graphics.Color.TRANSPARENT);
         getWindow().getDecorView().setSystemUiVisibility(
                 View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                        | View.SYSTEM_UI_FLAG_FULLSCREEN);
+                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
     }
 
     private void showHint(final String msg) {
@@ -504,6 +512,20 @@ public final class MainActivity extends Activity {
         } finally {
             detecting.set(false);
         }
+    }
+
+    /** 把需要玻璃底的控件矩形（屏幕坐标）交给 PreviewView 统一绘制 */
+    private void updateGlassRects() {
+        java.util.List<android.graphics.RectF> rects = new java.util.ArrayList<>();
+        View[] views = (tunePanel.getVisibility() == View.VISIBLE)
+                ? new View[]{switchButton, tuneButton, resetButton, tunePanel}
+                : new View[]{switchButton, tuneButton, resetButton};
+        for (View v : views) {
+            if (v.getWidth() == 0) continue;
+            rects.add(new android.graphics.RectF(v.getLeft(), v.getTop(),
+                    v.getRight(), v.getBottom()));
+        }
+        preview.setGlassRects(rects);
     }
 
     private void updateStats() {
