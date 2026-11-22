@@ -520,10 +520,15 @@ public final class MainActivity extends Activity {
         View[] views = (tunePanel.getVisibility() == View.VISIBLE)
                 ? new View[]{switchButton, tuneButton, resetButton, tunePanel}
                 : new View[]{switchButton, tuneButton, resetButton};
+        int[] base = new int[2];
+        preview.getLocationInWindow(base);
+        int[] loc = new int[2];
         for (View v : views) {
             if (v.getWidth() == 0) continue;
-            rects.add(new android.graphics.RectF(v.getLeft(), v.getTop(),
-                    v.getRight(), v.getBottom()));
+            v.getLocationInWindow(loc);
+            float x = loc[0] - base[0];
+            float y = loc[1] - base[1];
+            rects.add(new android.graphics.RectF(x, y, x + v.getWidth(), y + v.getHeight()));
         }
         preview.setGlassRects(rects);
     }
